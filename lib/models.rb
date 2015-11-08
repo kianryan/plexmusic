@@ -36,6 +36,9 @@ class Directory
   end
 end
 
+class Library < Directory
+end
+
 class Track
 
   attr_accessor :key, :type, :title, :parentTitle, :grandParentTitle, :file

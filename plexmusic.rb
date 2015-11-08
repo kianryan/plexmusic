@@ -7,17 +7,28 @@ begin
   ui = UI.new
   plex = PlexClient.new
 
-  username, password = ui.login
-
   plex.login username, password
 
-  ui.init_list plex.servers
 
-  # puts @plex.libraries server.address, server.port
-  # puts @plex.library server.address, server.port, 1, "albums"
-  # dirs, tracks = @plex.list server.address, server.port, "/library/metadata/3232/children"
+  list = plex.servers
+  server = nil
 
-  # puts tracks
+  ui.init_list list
+
+  while ! (index = ui.init_list list).nil?
+    selected = list[index]
+
+    if selected.is_a?(Server)
+      server = selected
+      list = plex.libraries(server.address, server.port)
+    elsif selected.is_a?(Library)
+      list = plex.library(server.address, server.port, selected.key)
+    elsif selected.is_a?(Directory)
+      list = plex.list(server.address, server.port, selected.key)
+    elsif selected.is_a?(Track)
+      # Play track
+    end
+  end
 ensure
   UI.finalize
 end

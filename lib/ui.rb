@@ -61,7 +61,7 @@ class UI
   def init_list list
     Ncurses.curs_set(0)
 
-    @win = WINDOW.new(0, Ncurses.COLS, 0, 0)
+    @win = WINDOW.new(0, Ncurses.COLS, 0, 0) if ! defined?(@win)
     @cur_line = 0
     @list = list
     @win.box(0, 0)
@@ -126,7 +126,7 @@ class UI
   end
 
   def list_input 
-    while((ch = @win.getch()) != KEY_F1)
+    while((ch = @win.getch()) != 27)
       case ch
       when KEY_DOWN
         @cur_line = @cur_line + 1
@@ -135,6 +135,8 @@ class UI
       when KEY_UP
         @cur_line = @cur_line - 1
         display_list
+      when 10 # Return
+        return @cur_line
       end
     end
   end
