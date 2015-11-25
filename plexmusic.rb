@@ -8,6 +8,7 @@ begin
   plex = PlexClient.new
 
   username, password = ui.login
+
   plex.login username, password
 
   list = plex.servers

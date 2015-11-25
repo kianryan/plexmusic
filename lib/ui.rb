@@ -73,14 +73,18 @@ class UI
 
   def display_list 
 
-    page_size = Ncurses.getmaxy(@win) - 3
+    page_length = Ncurses.getmaxy(@win) - 3
 
     start_line = @page_line
-    end_line = start_line + page_size
+    end_line = start_line + page_length
 
-    @list[start_line..end_line].each_with_index{ |item, i|
-      draw_line i, i.to_s + " " + item.to_s, @cur_line - start_line == i
+    lines = @list[start_line..end_line]
+    lines = lines + Array.new(page_length - lines.length + 1) { |i| "" }
+
+    lines.each_with_index{ |item, i|
+      draw_line i, lines.find_index(item), item.to_s, @cur_line - start_line == i
     }
+    
     @win.wrefresh
   end
 
@@ -89,14 +93,25 @@ class UI
     @win.mvaddstr(0,0,"Loading..." + message.to_s + "   ")
   end
 
-  def draw_line index, text, reverse
+  def draw_line index, col1, col2, reverse
       @win.attron(A_REVERSE) if reverse
       @win.attroff(A_REVERSE) unless reverse
 
-      @win.move(index + 1, 1)
+      width = Ncurses.getmaxx(@win) - 1
 
-      width = Ncurses.getmaxx(@win) - 2
-      @win.addstr(text[0..width].ljust(width))
+      col1 = col1.nil? ? "" : col1.to_s
+      col2 = col2.nil? ? "" : col2.to_s
+
+      col1_dims = [1, 10]
+      col2_dims = [10, width]
+
+      #col1
+      @win.move(index + 1, col1_dims[0])
+      @win.addstr(col1[0..col1_dims[1] - col1_dims[0]].ljust(col1_dims[1] - col1_dims[0]))
+      
+      #col2
+      @win.move(index + 1, col2_dims[0])
+      @win.addstr(col2[0..col2_dims[1] - col2_dims[0]].ljust(col2_dims[1] - col2_dims[0]))
   end
 
   private
@@ -136,15 +151,25 @@ class UI
   end
 
   def list_input 
+    page_size = Ncurses.getmaxy(@win) - 3
+
     while((ch = @win.getch()) != 27)
       case ch
       when KEY_DOWN
         @cur_line = @cur_line + 1 unless @cur_line > (@list.count - 2)
-        @page_line = @page_line + 1 if @cur_line > @page_line + Ncurses.getmaxy(@win) - 3
+        @page_line = @page_line + 1 if @cur_line > @page_line + page_size
         display_list
       when KEY_UP
         @cur_line = @cur_line - 1 unless @cur_line < 1
         @page_line = @page_line - 1 if @cur_line < @page_line
+        display_list
+      when KEY_PPAGE
+        @cur_line = @cur_line - page_size > 0 ? @cur_line - page_size : 0
+        @page_line = @page_line - page_size > 0 ? @page_line - page_size : 0
+        display_list
+      when KEY_NPAGE
+        @cur_line = @cur_line + page_size > @list.count - 1 ? @list.count - 1 : @cur_line + page_size
+        @page_line = @page_line + page_size > @list.count - 1 ? @list.count - 1 : @page_line + page_size
         display_list
       when 10 # Return
         return @cur_line
