@@ -72,13 +72,15 @@ class UI
   end
 
   def display_list 
-    @list[0..Ncurses.getmaxx(@win) - 1].each_with_index{ |item, i|
+
+    @list[0..Ncurses.getmaxy(@win) - 3].each_with_index{ |item, i|
       draw_line i, i.to_s + " " + item.to_s, @cur_line == i
     }
     @win.wrefresh
   end
 
   def display_loading message
+    @win.attroff(A_REVERSE)
     @win.mvaddstr(0,0,"Loading..." + message.to_s + "   ")
   end
 
@@ -129,15 +131,13 @@ class UI
   end
 
   def list_input 
-    display_loading "Waiting for input"
     while((ch = @win.getch()) != 27)
-      display_loading ch.to_s + "                "
       case ch
       when KEY_DOWN
-        @cur_line = @cur_line + 1
+        @cur_line = @cur_line + 1 unless @cur_line > (@list.count - 2)
         display_list
       when KEY_UP
-        @cur_line = @cur_line - 1
+        @cur_line = @cur_line - 1 unless @cur_line < 1
         display_list
       when 10 # Return
         return @cur_line
