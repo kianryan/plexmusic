@@ -7,13 +7,11 @@ begin
   ui = UI.new
   plex = PlexClient.new
 
+  username, password = ui.login
   plex.login username, password
-
 
   list = plex.servers
   server = nil
-
-  ui.init_list list
 
   while ! (index = ui.init_list list).nil?
     selected = list[index]

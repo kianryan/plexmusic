@@ -68,6 +68,7 @@ class UI
     @win.keypad(TRUE)
 
     display_list
+    list_input
   end
 
   def display_list 
@@ -75,8 +76,10 @@ class UI
       draw_line i, i.to_s + " " + item.to_s, @cur_line == i
     }
     @win.wrefresh
+  end
 
-    list_input
+  def display_loading message
+    @win.mvaddstr(0,0,"Loading..." + message.to_s + "   ")
   end
 
   def draw_line index, text, reverse
@@ -126,12 +129,13 @@ class UI
   end
 
   def list_input 
+    display_loading "Waiting for input"
     while((ch = @win.getch()) != 27)
+      display_loading ch.to_s + "                "
       case ch
       when KEY_DOWN
         @cur_line = @cur_line + 1
         display_list
-
       when KEY_UP
         @cur_line = @cur_line - 1
         display_list
