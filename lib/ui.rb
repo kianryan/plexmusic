@@ -63,18 +63,23 @@ class UI
 
     @win = WINDOW.new(0, Ncurses.COLS, 0, 0) if ! defined?(@win)
     @cur_line = 0
+    @page_line = 0
     @list = list
     @win.box(0, 0)
     @win.keypad(TRUE)
-
     display_list
     list_input
   end
 
   def display_list 
 
-    @list[0..Ncurses.getmaxy(@win) - 3].each_with_index{ |item, i|
-      draw_line i, i.to_s + " " + item.to_s, @cur_line == i
+    page_size = Ncurses.getmaxy(@win) - 3
+
+    start_line = @page_line
+    end_line = start_line + page_size
+
+    @list[start_line..end_line].each_with_index{ |item, i|
+      draw_line i, i.to_s + " " + item.to_s, @cur_line - start_line == i
     }
     @win.wrefresh
   end
@@ -135,9 +140,11 @@ class UI
       case ch
       when KEY_DOWN
         @cur_line = @cur_line + 1 unless @cur_line > (@list.count - 2)
+        @page_line = @page_line + 1 if @cur_line > @page_line + Ncurses.getmaxy(@win) - 3
         display_list
       when KEY_UP
         @cur_line = @cur_line - 1 unless @cur_line < 1
+        @page_line = @page_line - 1 if @cur_line < @page_line
         display_list
       when 10 # Return
         return @cur_line
