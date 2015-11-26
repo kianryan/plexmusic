@@ -2,7 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     mini_portile (0.6.2)
-    ncurses-ruby (1.2.4)
+    ncursesw (1.4.9)
     nokogiri (1.6.6.2)
       mini_portile (~> 0.6.0)
 
@@ -10,7 +10,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  ncurses-ruby
+  ncursesw
   nokogiri
 
 BUNDLED WITH

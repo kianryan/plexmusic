@@ -1,5 +1,5 @@
 
-require "ncurses"
+require "ncursesw"
 
 include Ncurses
 include Ncurses::Form
@@ -99,19 +99,19 @@ class UI
 
       width = Ncurses.getmaxx(@win) - 1
 
-      col1 = col1.nil? ? "" : col1.to_s
-      col2 = col2.nil? ? "" : col2.to_s
-
       col1_dims = [1, 10]
       col2_dims = [10, width]
 
+      col1 = col1.nil? ? "" : col1.to_s
+      col2 = col2.nil? ? "" : col2.to_s
+
       #col1
       @win.move(index + 1, col1_dims[0])
-      @win.addstr(col1[0..col1_dims[1] - col1_dims[0]].ljust(col1_dims[1] - col1_dims[0]))
+      @win.addstr(col1[0..col1_dims[1] - col1_dims[0] - 1].ljust(col1_dims[1] - col1_dims[0]))
       
       #col2
       @win.move(index + 1, col2_dims[0])
-      @win.addstr(col2[0..col2_dims[1] - col2_dims[0]].ljust(col2_dims[1] - col2_dims[0]))
+      @win.addstr(col2[0..col2_dims[1] - col2_dims[0] - 1].ljust(col2_dims[1] - col2_dims[0]))
   end
 
   private
