@@ -58,6 +58,6 @@ class Track
 
   def self.from_xml(xml)
     self.new(xml["key"], xml["type"], xml["title"], xml["parentTitle"],
-            xml["grandParentTitle"], xml["file"])
+             xml["grandParentTitle"], xml.xpath("Media/Part")[0]["key"])
   end
 end

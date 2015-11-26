@@ -2,13 +2,14 @@
 
 require_relative "lib/ui"
 require_relative "lib/plex_client"
+require_relative "lib/mpg123"
 
 begin
   ui = UI.new
   plex = PlexClient.new
+  player = MpgPlayer.new plex
 
   username, password = ui.login
-
   plex.login username, password
 
   list = plex.servers
@@ -25,7 +26,7 @@ begin
     elsif selected.is_a?(Directory)
       list = plex.list(server.address, server.port, selected.key)
     elsif selected.is_a?(Track)
-      # Play track
+      player.play(server.address, server.port, selected.file)
     end
   end
 ensure

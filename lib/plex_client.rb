@@ -72,7 +72,7 @@ class PlexClient
 
     Nokogiri::XML(response.body)
       .xpath("//MediaContainer/Directory")
-      .map { |xnode| Library.from_xml(xnode) }
+      .map { |xnode| Directory.from_xml(xnode) }
   end
 
   def list server, port, key
@@ -97,11 +97,11 @@ class PlexClient
       .xpath("//MediaContainer/Track")
       .map { |xnode| Track.from_xml(xnode) }
 
-    [dirs, tracks]
+    dirs.concat(tracks)
   end
 
-  def fetch server, port, filename
-    uri = URI.parse("https://#{server}:#{port}#{filename}")
+  def fetch server, port, key
+    uri = URI.parse("https://#{server}:#{port}#{key}")
 
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
