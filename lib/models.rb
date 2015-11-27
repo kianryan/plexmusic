@@ -56,6 +56,10 @@ class Track
     title
   end
 
+  def cache_filename
+    Digest::MD5.hexdigest(@key) + ".mp3"
+  end
+
   def self.from_xml(xml)
     self.new(xml["key"], xml["type"], xml["title"], xml["parentTitle"],
              xml["grandParentTitle"], xml.xpath("Media/Part")[0]["key"])

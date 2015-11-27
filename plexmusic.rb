@@ -3,11 +3,13 @@
 require_relative "lib/ui"
 require_relative "lib/plex_client"
 require_relative "lib/mpg123"
+require_relative "lib/playlist"
 
 begin
   ui = UI.new
   plex = PlexClient.new
-  player = MpgPlayer.new plex
+  player = MpgPlayer.new
+  playlist = Playlist.new player, plex
 
   username, password = ui.login
   plex.login username, password
@@ -36,7 +38,7 @@ begin
     elsif selected.is_a?(Directory)
       list = plex.list(server.address, server.port, selected.key)
     elsif selected.is_a?(Track)
-      player.play(server.address, server.port, selected.file)
+      playlist.add server.address, server.port, selected
     end
   end
 ensure
