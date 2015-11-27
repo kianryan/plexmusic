@@ -79,10 +79,12 @@ class UI
     end_line = start_line + page_length
 
     lines = @list[start_line..end_line]
-    lines = lines + Array.new(page_length - lines.length + 1) { |i| "" }
 
     lines.each_with_index{ |item, i|
-      draw_line i, lines.find_index(item), item.to_s, @cur_line - start_line == i
+      draw_line i, [1, 10], [@list.find_index(item), item.to_s], @cur_line - start_line == i
+    }
+    (lines.length + 1 .. page_length + 1).each{ |i|
+      draw_blank i
     }
     
     @win.wrefresh
@@ -93,25 +95,27 @@ class UI
     @win.mvaddstr(0,0,"Loading..." + message.to_s + "   ")
   end
 
-  def draw_line index, col1, col2, reverse
+  def draw_line index, col_pos, col_data, reverse
+
       @win.attron(A_REVERSE) if reverse
       @win.attroff(A_REVERSE) unless reverse
 
-      width = Ncurses.getmaxx(@win) - 1
+      win_width = Ncurses.getmaxx(@win) - 1
 
-      col1_dims = [1, 10]
-      col2_dims = [10, width]
+      col_pos.each_with_index{ |pos, i|
+        width = (i == col_pos.length - 1 ? win_width : col_pos[i + 1]) - pos
+        @win.move(index + 1, pos)
+        @win.addstr(col_data[i].to_s()[0..width].ljust(width))
+      }
+  end
 
-      col1 = col1.nil? ? "" : col1.to_s
-      col2 = col2.nil? ? "" : col2.to_s
+  def draw_blank index
+    @win.attroff(A_REVERSE)
 
-      #col1
-      @win.move(index + 1, col1_dims[0])
-      @win.addstr(col1[0..col1_dims[1] - col1_dims[0] - 1].ljust(col1_dims[1] - col1_dims[0]))
-      
-      #col2
-      @win.move(index + 1, col2_dims[0])
-      @win.addstr(col2[0..col2_dims[1] - col2_dims[0] - 1].ljust(col2_dims[1] - col2_dims[0]))
+    width = Ncurses.getmaxx(@win) - 1
+
+    @win.move(index, 1)
+    @win.addstr(" " * (width - 1))
   end
 
   private
@@ -143,6 +147,7 @@ class UI
 
       when KEY_BACKSPACE
         form.form_driver(REQ_DEL_PREV);
+
       else
         # If this is a normal character, it gets Printed    
         form.form_driver(ch);
@@ -171,6 +176,9 @@ class UI
         @cur_line = @cur_line + page_size > @list.count - 1 ? @list.count - 1 : @cur_line + page_size
         @page_line = @page_line + page_size > @list.count - 1 ? @list.count - 1 : @page_line + page_size
         display_list
+      when KEY_BACKSPACE
+      when KEY_DC
+        return -1
       when 10 # Return
         return @cur_line
       end

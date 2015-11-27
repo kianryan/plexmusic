@@ -15,10 +15,20 @@ begin
   list = plex.servers
   server = nil
 
-  while ! (index = ui.init_list list).nil?
-    selected = list[index]
+  previous = []
+  selected = nil
 
-    if selected.is_a?(Server)
+  while ! (index = ui.init_list list).nil?
+    if index == -1
+      selected = previous.pop
+    else
+      previous.push(selected)
+      selected = list[index]
+    end
+
+    if selected.nil?
+      list = plex.servers
+    elsif selected.is_a?(Server)
       server = selected
       list = plex.libraries(server.address, server.port)
     elsif selected.is_a?(Library)
